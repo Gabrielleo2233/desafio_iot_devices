@@ -47,9 +47,11 @@ static const struct gpio_dt_spec button1 = GPIO_DT_SPEC_GET_OR(SW1_NODE, gpios,{
 static struct gpio_callback button0_cb_data;
 static struct device *devL0; //Objeto devL0 aponta para classe device
 
+
+
 void button0_pressed(const struct device *devB0, struct gpio_callback *cb, uint32_t pins) //Função chamada quando o botão 0 é pressionado
 {
-	gpio_pin_set(devL0, PINL0, 1); //Leva HIGH para a gpio do LED 0
+	gpio_pin_set(devL0, PINL0, 1); //Leva HIGH para o LED 0
     //AQUI DEVE-SE LER O VALOR DO COUNT REGISTER
     k_msleep(SLEEP_TIME); //tempo de 500us
     gpio_pin_set(devL0, PINL0, 0)
@@ -78,7 +80,7 @@ void main(void)
 		return;
     }
 
-    retB0 = gpio_pin_configure_dt(&button0, GPIO_INPUT); //gpio_pin_configure é uma função da SDK que configura GPIO_INPUT
+    retB0 = gpio_pin_configure_dt(&button0, GPIO_INPUT); //gpio_pin_configure é uma função da SDK usada para configurar a gpio (como input ou output, por exemplo)
 	retB1 = gpio_pin_configure_dt(&button1, GPIO_INPUT);
     
     //casos de falha
@@ -90,12 +92,14 @@ void main(void)
         printk("Error %d: failed to configure %s pin %d\n", retB1, button1.port->name, button1.pin);
 		return;
     }
+
+
+    //Botão 0
     gpio_init_callback(&button0_cb_data, button0_pressed, BIT(button0.pin)); //Escuta a função button0_pressed
     gpio_add_callback(button0.port, &button0_cb_data);
 	printk("Set up button0 at %s pin %d\n", button0.port->name, button0.pin);
 
     //LEDS
-
     devL0 = device_get_binding(LED0); //Busca informações de LED0 no SDK e joga na variável devL0
     devL1 = device_get_binding(LED1); 
 
@@ -111,9 +115,9 @@ void main(void)
 	}
 
     while (1){ //loop infinito
-        int valB1 = gpio_pin_get_dt(&button1); //Lê se o botão está pressionado ou não
+        int valB1 = gpio_pin_get_dt(&button1); //Lê se o botão está pressionado ou não. Atribui o valor a valB1
 
-        gpio_pin_set(devL1, PINL1, valB1); // O segundo LED acende para Botão 1 pressionado e apagada para Botão 1 solto
+        gpio_pin_set(devL1, PINL1, valB1); // O LED1 acende para Botão 1 pressionado e apagada para Botão 1 solto
 
     }
 }
